@@ -19,8 +19,8 @@ export default class SimpleObservable {
 
     }
 
-    update(value) {
-        if (this._value !== value) {
+    update(value, force) {
+        if (force || this._value !== value) {
             this._value = value;
             this._callbacks.forEach(callback=>callback(this._value))
         }

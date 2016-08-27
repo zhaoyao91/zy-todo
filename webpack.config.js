@@ -1,5 +1,6 @@
 var webpack = require('webpack');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
+var path = require('path');
 
 var PRODUCTION = process.env.NODE_ENV === 'production';
 var OUTPUT_DIR = "www/dist/";
@@ -17,7 +18,8 @@ module.exports = {
                 exclude: /(node_modules|bower_components)/,
                 loader: 'babel',
                 query: {
-                    presets: ['react', 'es2015', 'stage-2']
+                    presets: ['react', 'es2015', 'stage-2'],
+                    plugins: ["transform-function-bind"]
                 }
             },
             {test: /\.css$/, loader: ExtractTextPlugin.extract('css?sourceMap')},
@@ -35,5 +37,10 @@ module.exports = {
             mangle: {except: ['$', 'JQuery', 'exports', 'require']}
         })
     ] : []),
-    devtool: PRODUCTION ? false : 'source-map'
+    devtool: PRODUCTION ? false : 'source-map',
+    resolve: {
+        root: [
+            path.resolve('./src')
+        ]
+    }
 };

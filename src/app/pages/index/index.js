@@ -1,8 +1,7 @@
 import React from 'react';
 
 export default (props)=>{
-    console.log(props);
     return <div>
-        <p>Index Page</p>
+        <h1>Index Page</h1>
     </div>
 }
