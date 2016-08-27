@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link, IndexLink} from 'react-router';
+import { Button, Alert, Spinner } from 'elemental'
 
 export default class extends React.Component {
     static contextTypes = {
@@ -16,7 +17,7 @@ export default class extends React.Component {
                 <li><Link to="/test">Test</Link></li>
                 <li><Link to="/test2">Test2</Link></li>
             </ul>
-            <button onClick={()=> this.context.router.push('/')}>首页</button>
+            <Button type="primary" onClick={()=> this.context.router.push('/')}>首页</Button>
             {children}
         </div>
     }

@@ -1,12 +1,14 @@
 var webpack = require('webpack');
+var ExtractTextPlugin = require('extract-text-webpack-plugin');
 
 var PRODUCTION = process.env.NODE_ENV === 'production';
+var OUTPUT_DIR = "www/dist/";
 
 module.exports = {
     entry: "./src/main.js",
     output: {
         path: __dirname,
-        filename: "www/dist/bundle.js"
+        filename: OUTPUT_DIR + "bundle.js"
     },
     module: {
         loaders: [
@@ -18,10 +20,13 @@ module.exports = {
                     presets: ['react', 'es2015', 'stage-2']
                 }
             },
-            {test: /\.css$/, loader: "style!css"}
+            {test: /\.css$/, loader: ExtractTextPlugin.extract('css?sourceMap')},
+            {test: /\.less$/, loader: ExtractTextPlugin.extract('css?sourceMap!less?sourceMap')}
         ]
     },
-    plugins: [].concat(PRODUCTION ? [
+    plugins: [
+        new ExtractTextPlugin(OUTPUT_DIR + "style.css")
+    ].concat(PRODUCTION ? [
         new webpack.DefinePlugin({
             "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
         }),
