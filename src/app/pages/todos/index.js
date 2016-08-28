@@ -3,7 +3,7 @@ import {Row, Col, Button} from 'elemental';
 import connect from 'lib/connect-simple-observable';
 import AppState from 'states/app';
 import PageContainer from 'comps/page-container';
-import TodoItem from 'comps/todo-item';
+import TodoItem from '../../comps/todo-item';
 import R from 'ramda';
 import CreateTodoModal from './create-todo-modal';
 import UpdateTodoModal from './update-todo-modal';
