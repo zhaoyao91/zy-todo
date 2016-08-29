@@ -1,12 +1,16 @@
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
-var path = require('path');
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path = require('path');
 
-var PRODUCTION = process.env.NODE_ENV === 'production';
-var OUTPUT_DIR = "www/dist/";
+const PRODUCTION = process.env.NODE_ENV === 'production';
+const SRC_DIR = './src';
+const OUTPUT_DIR = "www/dist/";
+const REQUIRED_ENV = [
+    'BASE_URL',
+];
 
 module.exports = {
-    entry: "./src/main.js",
+    entry: SRC_DIR + '/main.js',
     output: {
         path: __dirname,
         filename: OUTPUT_DIR + "bundle.js"
@@ -24,11 +28,12 @@ module.exports = {
             },
             {test: /\.css$/, loader: ExtractTextPlugin.extract('css?sourceMap')},
             {test: /\.less$/, loader: ExtractTextPlugin.extract('css?sourceMap!less?sourceMap')},
-            { test: /\.json$/, loader: 'json-loader' }
+            {test: /\.json$/, loader: 'json-loader'}
         ]
     },
     plugins: [
-        new ExtractTextPlugin(OUTPUT_DIR + "style.css")
+        new ExtractTextPlugin(OUTPUT_DIR + "style.css"),
+        new webpack.EnvironmentPlugin(REQUIRED_ENV)
     ].concat(PRODUCTION ? [
         new webpack.DefinePlugin({
             "process.env.NODE_ENV": JSON.stringify(process.env.NODE_ENV),
@@ -41,7 +46,7 @@ module.exports = {
     devtool: PRODUCTION ? false : 'source-map',
     resolve: {
         root: [
-            path.resolve('./src')
+            path.resolve(SRC_DIR)
         ]
     }
 };
