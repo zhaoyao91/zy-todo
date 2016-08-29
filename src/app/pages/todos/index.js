@@ -7,17 +7,29 @@ import TodoItem from '../../comps/todo-item';
 import R from 'ramda';
 import CreateTodoModal from './create-todo-modal';
 import UpdateTodoModal from './update-todo-modal';
+import TodosService from 'services/todos';
+import _ from 'lodash';
 
 let Page = class extends React.Component {
     state = {
         openCreateTodoModal: false,
         openUpdateTodoModal: false,
-        updatingModalIndex: 0
+        updatingTodoId: undefined
     };
+
+    componentWillMount() {
+        // fetch data
+        TodosService.getAllTodos((err, todos)=> {
+            if (err) console.error(err);
+            else AppState.todos.update(todos);
+        })
+    }
 
     render() {
         const {todos} = this.props;
-        const {openCreateTodoModal, openUpdateTodoModal, updatingModalIndex} = this.state;
+        const {openCreateTodoModal, openUpdateTodoModal, updatingTodoId} = this.state;
+
+        const updatingTodo = R.find(R.propEq('_id', updatingTodoId), todos);
 
         return <PageContainer>
             <h1>Todos</h1>
@@ -25,33 +37,44 @@ let Page = class extends React.Component {
             <Row>
                 {
                     todos.map((todo, index)=><Col key={index}>
-                        <TodoItem todo={todo} onCheckedChange={this.updateTodoChecked(index)}
-                                  onRemove={this.removeTodo(index)} onClickContent={this.openUpdateTodoModal(index)}/>
+                        <TodoItem todo={todo} onCheckedChange={this.updateTodoChecked(todo._id)}
+                                  onRemove={this.removeTodo(todo._id)}
+                                  onClickContent={this.openUpdateTodoModal(todo._id)}/>
                     </Col>)
                 }
             </Row>
             <CreateTodoModal isOpen={openCreateTodoModal} createTodo={::this.createTodo}
                              closeModal={::this.closeCreateTodoModal}/>
-            <UpdateTodoModal isOpen={openUpdateTodoModal} updateTodo={this.updateTodo(updatingModalIndex)}
+            <UpdateTodoModal isOpen={openUpdateTodoModal} updateTodo={this.updateTodo(updatingTodoId)}
                              closeModal={::this.closeUpdateTodoModal}
-                             content={todos[updatingModalIndex].content}/>
+                             content={_.get(updatingTodo, `content`, '')}/>
         </PageContainer>
     }
 
-    updateTodoChecked(index) {
+    updateTodoChecked(id) {
         return (checked)=> {
-            AppState.todos.update(R.adjust(R.assoc('checked', checked), index, AppState.todos.get()))
+            TodosService.updateTodo(id, {checked}, (err, updatedCount)=> {
+                if (err) console.error(err);
+                else AppState.todos.update(R.map(todo=>todo._id === id ? R.assoc('checked', checked, todo) : todo, AppState.todos.get()))
+            })
         }
     }
 
-    removeTodo(index) {
+    removeTodo(id) {
         return ()=> {
-            AppState.todos.update(R.remove(index, 1, AppState.todos.get()));
+            TodosService.removeTodo(id, (err, removedCount)=> {
+                if (err) console.error(err);
+                else AppState.todos.update(R.reject(todo=>todo._id === id, AppState.todos.get()))
+            });
         }
     };
 
     createTodo(content) {
-        AppState.todos.update(R.prepend({content, checked: false}, AppState.todos.get()));
+        TodosService.createTodo({content: content}, (err, newTodo)=> {
+            if (err) console.error(err);
+            else AppState.todos.update(R.prepend(newTodo, AppState.todos.get()));
+        });
+
     }
 
     openCreateTodoModal() {
@@ -62,11 +85,11 @@ let Page = class extends React.Component {
         this.setState({openCreateTodoModal: false})
     }
 
-    openUpdateTodoModal(index) {
+    openUpdateTodoModal(id) {
         return ()=> {
             this.setState({
                 openUpdateTodoModal: true,
-                updatingModalIndex: index
+                updatingTodoId: id
             })
         }
     }
@@ -75,9 +98,12 @@ let Page = class extends React.Component {
         this.setState({openUpdateTodoModal: false});
     }
 
-    updateTodo(index) {
+    updateTodo(id) {
         return (content)=> {
-            AppState.todos.update(R.adjust(R.assoc('content', content), index, AppState.todos.get()))
+            TodosService.updateTodo(id, {content}, (err, updatedCount)=> {
+                if (err) console.error(err);
+                else AppState.todos.update(R.map(todo=>todo._id === id ? R.assoc('content', content, todo) : todo, AppState.todos.get()))
+            })
         }
     }
 };

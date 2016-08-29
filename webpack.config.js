@@ -23,7 +23,8 @@ module.exports = {
                 }
             },
             {test: /\.css$/, loader: ExtractTextPlugin.extract('css?sourceMap')},
-            {test: /\.less$/, loader: ExtractTextPlugin.extract('css?sourceMap!less?sourceMap')}
+            {test: /\.less$/, loader: ExtractTextPlugin.extract('css?sourceMap!less?sourceMap')},
+            { test: /\.json$/, loader: 'json-loader' }
         ]
     },
     plugins: [
